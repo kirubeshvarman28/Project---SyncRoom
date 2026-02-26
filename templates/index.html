@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}SyncRoom - Share stuff between devices{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="landing-content">
+        <div class="main-logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SyncRoom Logo" class="logo-image">
+        </div>
+
+        <h1 class="hero-title">The easiest way to share stuff between devices.</h1>
+
+        <div class="action-buttons">
+            <form action="{{ url_for('create_room') }}" method="POST">
+                <button type="submit" class="btn-create">Create public room</button>
+            </form>
+
+            <div class="join-input-group">
+                <input type="text" id="roomCodeInput" placeholder="Enter room code" maxlength="6">
+                <button class="btn-join" onclick="joinRoom()"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <div class="recent-rooms">
+            <span class="recent-label">Recently visited</span>
+            <div id="recentRoomsList" class="recent-list">
+                <!-- Populated by JS -->
+                <div class="empty-recent">No recent rooms</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="landing-illustration">
+        <img src="{{ url_for('static', filename='images/sharing_illustration.png') }}" alt="Sharing Illustration">
+    </div>
+</div>
+
+<footer class="landing-footer">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <span>Made by Antigravity</span>
+</footer>
+{% endblock %}

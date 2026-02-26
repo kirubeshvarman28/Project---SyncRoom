@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Items - SaladRoom Clone{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-left">
+        <h1>My Items</h1>
+        <p>Manage and organize your collection.</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('addModal')">
+        <i class="fas fa-plus"></i> New Item
+    </button>
+</div>
+
+<div class="items-grid" id="itemsGrid">
+    {% if items %}
+    {% for item in items %}
+    <div class="item-card" id="item-{{ item.id }}">
+        <div class="item-card-header">
+            <h3>{{ item.title }}</h3>
+            <div class="item-actions">
+                <button class="action-btn edit"
+                    onclick="editItem({{ item.id }}, '{{ item.title|escape }}', '{{ item.description|escape }}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn delete" onclick="deleteItem({{ item.id }})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <p class="item-card-desc">{{ item.description }}</p>
+        <div class="item-card-footer">
+            <span class="item-date"><i class="far fa-calendar"></i> {{ item.created_at.strftime('%Y-%m-%d') }}</span>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state-full" id="noItemsMessage">
+        <div class="empty-icon">📂</div>
+        <h2>No items yet</h2>
+        <p>Click "New Item" to create your first content.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Item Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add New Item</h2>
+            <span class="close" onclick="closeModal('addModal')">&times;</span>
+        </div>
+        <form id="addItemForm" onsubmit="event.preventDefault(); submitAddItem();">
+            <div class="form-group">
+                <label for="newTitle">Title</label>
+                <input type="text" id="newTitle" required placeholder="Enter title...">
+            </div>
+            <div class="form-group">
+                <label for="newDescription">Description</label>
+                <textarea id="newDescription" rows="4" placeholder="Enter description..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Item</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Item</h2>
+            <span class="close" onclick="closeModal('editModal')">&times;</span>
+        </div>
+        <form id="editItemForm" onsubmit="event.preventDefault(); submitEditItem();">
+            <input type="hidden" id="editItemId">
+            <div class="form-group">
+                <label for="editTitle">Title</label>
+                <input type="text" id="editTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Description</label>
+                <textarea id="editDescription" rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

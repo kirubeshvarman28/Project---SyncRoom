@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Room {{ room.code }} - SyncRoom{% endblock %}
+
+{% block content %}
+<div class="room-container">
+    <header class="room-header">
+        <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+        <div class="room-info">
+            <span class="room-label">Room Code</span>
+            <h2 class="room-code-display">{{ room.code }}</h2>
+        </div>
+        <div class="room-actions">
+            <div class="member-count-badge">
+                <i class="fas fa-users"></i>
+                <span id="memberCount">1</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="upload-section" id="dropZone">
+        <div class="upload-box">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <h3>Drag & Drop files here</h3>
+            <p>or click to browse from device</p>
+            <div class="expiry-selector">
+                <label for="expirySelect">Self-destruct after:</label>
+                <select id="expirySelect" class="expiry-dropdown">
+                    <option value="5" selected>5 Minutes</option>
+                    <option value="60">1 Hour</option>
+                    <option value="1440">1 Day</option>
+                    <option value="-1">Infinity</option>
+                </select>
+            </div>
+            <input type="file" id="fileInput" hidden multiple>
+            <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">Select Files</button>
+        </div>
+        <div id="uploadProgress" class="upload-progress-container" style="display: none;">
+            <div class="progress-bar-bg">
+                <div id="progressBar" class="progress-bar-fill"></div>
+            </div>
+            <span id="progressText">Uploading...</span>
+        </div>
+    </div>
+
+    <div class="files-section">
+        <div class="section-title">
+            <h3>Files in this room</h3>
+            <span class="file-count">{{ room.files|length }} files</span>
+        </div>
+        <div class="files-grid" id="filesGrid">
+            {% if room.files %}
+            {% for file in room.files %}
+            <div class="file-card" id="file-{{ loop.index }}" data-upload-time="{{ file.upload_date.isoformat() }}"
+                data-expiry-minutes="{{ file.expiry_minutes }}">
+                <div class="file-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="file-details">
+                    <span class="file-name">{{ file.filename }}</span>
+                    <span class="file-meta">
+                        Expires in: <span class="expiry-timer">Calculating...</span>
+                    </span>
+                </div>
+                <div class="file-actions">
+                    <a href="{{ url_for('download_file', code=room.code, filename=file.filename) }}"
+                        class="btn-download" download>
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button class="btn-delete"
+                        onclick="deleteFile('{{ room.code }}', '{{ file.filename }}', 'file-{{ loop.index }}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-files">
+                <p>No files uploaded yet. Be the first!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add current room to recent rooms
+    const roomCode = "{{ room.code }}";
+    let recent = JSON.parse(localStorage.getItem('recentRooms') || '[]');
+    if (!recent.includes(roomCode)) {
+        recent.unshift(roomCode);
+        if (recent.length > 3) recent.pop();
+        localStorage.setItem('recentRooms', JSON.stringify(recent));
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SaladRoom Clone{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back, {{ current_user.username }}! Here's what's happening.</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon indigo">
+            <i class="fas fa-boxes"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Total Items</span>
+            <span class="stat-value">{{ total_items }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Active Items</span>
+            <span class="stat-value">{{ total_items }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">User Status</span>
+            <span class="stat-value">Premium</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <section class="recent-items-section">
+        <div class="section-header">
+            <h3>Recent Items</h3>
+            <a href="{{ url_for('items') }}" class="view-all">View All</a>
+        </div>
+        <div class="items-list">
+            {% if recent_items %}
+            {% for item in recent_items %}
+            <div class="item-row">
+                <div class="item-main">
+                    <span class="item-title">{{ item.title }}</span>
+                    <span class="item-desc">{{ item.description[:50] }}{% if item.description|length > 50 %}...{% endif
+                        %}</span>
+                </div>
+                <span class="item-date">{{ item.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <p>No items found. Start by adding one!</p>
+                <a href="{{ url_for('items') }}" class="btn btn-sm btn-outline">Add Item</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="quick-links-section">
+        <div class="section-header">
+            <h3>Quick Actions</h3>
+        </div>
+        <div class="quick-links">
+            <button class="quick-link-btn" onclick="location.href='{{ url_for('items') }}'">
+                <i class="fas fa-plus"></i>
+                <span>Add New Item</span>
+            </button>
+            <button class="quick-link-btn primary" onclick="alert('Profile settings coming soon!')">
+                <i class="fas fa-user-cog"></i>
+                <span>Update Profile</span>
+            </button>
+        </div>
+    </section>
+</div>
+{% endblock %}
