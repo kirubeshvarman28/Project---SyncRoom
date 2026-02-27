@@ -920,24 +920,3 @@ body {
         width: 200px;
     }
 }
-/* --- Landing Page Illustration --- */
-.landing-illustration {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    min-height: 400px;
-}
-
-.landing-illustration img {
-    max-width: 100%;
-    width: 650px;
-    height: auto;
-    filter: drop-shadow(0 20px 40px rgba(124, 58, 237, 0.15));
-    transition: transform 0.3s ease;
-}
-
-.landing-illustration img:hover {
-    transform: translateY(-8px);
-}
