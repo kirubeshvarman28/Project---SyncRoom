@@ -21,6 +21,8 @@ class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(6), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    creator_session_id = db.Column(db.String(64), nullable=True)
+    creator_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     files = db.relationship('FileItem', backref='room', lazy=True, cascade="all, delete-orphan")
 
 class FileItem(db.Model):

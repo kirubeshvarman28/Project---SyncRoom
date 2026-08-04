@@ -37,6 +37,14 @@ def generate_room_code():
         if not Room.query.filter_by(code=code).first():
             return code
 
+def is_room_owner(room):
+    if room.creator_user_id and current_user.is_authenticated:
+        if room.creator_user_id == current_user.id:
+            return True
+    if 'session_id' in session and room.creator_session_id == session['session_id']:
+        return True
+    return False
+
 def cleanup_expired_files():
     """Background task to delete files based on their custom expiry."""
     with app.app_context():
@@ -132,8 +140,15 @@ def index():
 
 @app.route('/create-room', methods=['POST'])
 def create_room():
+    if 'session_id' not in session:
+        session['session_id'] = str(uuid.uuid4())
     code = generate_room_code()
-    new_room = Room(code=code)
+    creator_user_id = current_user.id if current_user.is_authenticated else None
+    new_room = Room(
+        code=code,
+        creator_session_id=session['session_id'],
+        creator_user_id=creator_user_id
+    )
     db.session.add(new_room)
     db.session.commit()
     return redirect(url_for('room', code=code))
@@ -157,7 +172,8 @@ def room(code):
         member.last_seen = datetime.utcnow()
     
     db.session.commit()
-    return render_template('room.html', room=room)
+    is_owner = is_room_owner(room)
+    return render_template('room.html', room=room, is_owner=is_owner)
 
 @app.route('/api/check_room/<code>')
 def check_room(code):
@@ -186,6 +202,9 @@ def heartbeat(code):
 @app.route('/api/room/<code>/upload', methods=['POST'])
 def upload_file(code):
     room = Room.query.filter_by(code=code).first_or_404()
+    if not is_room_owner(room):
+        return jsonify({'error': 'Only the room creator is authorized to upload files.'}), 403
+        
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -223,6 +242,9 @@ def upload_file(code):
 @app.route('/api/room/<code>/delete/<filename>', methods=['POST'])
 def delete_file(code, filename):
     room = Room.query.filter_by(code=code).first_or_404()
+    if not is_room_owner(room):
+        return jsonify({'error': 'Only the room creator is authorized to delete files.'}), 403
+        
     file_item = FileItem.query.filter_by(room_id=room.id, filename=filename).first_or_404()
     
     # Delete from disk

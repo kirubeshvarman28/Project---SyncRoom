@@ -152,12 +152,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- File Upload Logic ---
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
+    const filesGrid = document.getElementById('filesGrid');
 
-    if (dropZone) {
+    if (filesGrid) {
         // Start expiry timer update
         setInterval(updateExpiries, 1000);
         updateExpiries(); // Initial call
 
+        // Start member count heartbeat
+        startMemberHeartbeat();
+
+        // Start file sync polling
+        setInterval(syncFiles, 5000);
+        syncFiles(); // Initial sync
+    }
+
+    if (dropZone && fileInput) {
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
@@ -176,13 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInput.addEventListener('change', () => {
             handleFiles(fileInput.files);
         });
-
-        // Start member count heartbeat
-        startMemberHeartbeat();
-
-        // Start file sync polling
-        setInterval(syncFiles, 5000);
-        syncFiles(); // Initial sync
     }
 });
 
@@ -424,9 +427,11 @@ function renderFileGrid(files, roomCode) {
                 <a href="${file.download_url}" class="btn-download" download>
                     <i class="fas fa-download"></i>
                 </a>
+                ${typeof isRoomOwner !== 'undefined' && isRoomOwner ? `
                 <button class="btn-delete" onclick="deleteFile('${roomCode}', '${file.filename}', 'file-${index + 1}')">
                     <i class="fas fa-trash-alt"></i>
                 </button>
+                ` : ''}
             </div>
         `;
         grid.appendChild(card);

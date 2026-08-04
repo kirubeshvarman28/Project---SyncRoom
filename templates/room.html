@@ -18,6 +18,7 @@
         </div>
     </header>
 
+    {% if is_owner %}
     <div class="upload-section" id="dropZone">
         <div class="upload-box">
             <i class="fas fa-cloud-upload-alt upload-icon"></i>
@@ -42,6 +43,15 @@
             <span id="progressText">Uploading...</span>
         </div>
     </div>
+    {% else %}
+    <div class="upload-section view-only-banner" style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px; text-align: center; background: var(--bg-card); transition: all 0.3s ease; box-shadow: var(--shadow-sm);">
+        <div class="upload-box">
+            <i class="fas fa-eye upload-icon" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px;"></i>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px; color: var(--text-color);">View-Only Room</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 400px; margin: 0 auto;">You can view and download files, but only the room creator can upload or delete files.</p>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="files-section">
         <div class="section-title">
@@ -67,10 +77,12 @@
                         class="btn-download" download>
                         <i class="fas fa-download"></i>
                     </a>
+                    {% if is_owner %}
                     <button class="btn-delete"
                         onclick="deleteFile('{{ room.code }}', '{{ file.filename }}', 'file-{{ loop.index }}')">
                         <i class="fas fa-trash-alt"></i>
                     </button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -86,6 +98,7 @@
 <script>
     // Add current room to recent rooms
     const roomCode = "{{ room.code }}";
+    const isRoomOwner = {{ 'true' if is_owner else 'false' }};
     let recent = JSON.parse(localStorage.getItem('recentRooms') || '[]');
     if (!recent.includes(roomCode)) {
         recent.unshift(roomCode);
