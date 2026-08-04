@@ -21,6 +21,23 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 # app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # Limit removed
 
 db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+    try:
+        from sqlalchemy import text
+        db.session.execute(text("SELECT creator_session_id FROM room LIMIT 1"))
+    except Exception:
+        db.session.rollback()
+        try:
+            db.session.execute(text("ALTER TABLE room ADD COLUMN creator_session_id VARCHAR(64)"))
+            db.session.execute(text("ALTER TABLE room ADD COLUMN creator_user_id INTEGER REFERENCES user(id)"))
+            db.session.commit()
+            print("Database migration completed: added creator columns to room table.")
+        except Exception as migration_err:
+            db.session.rollback()
+            print(f"Migration error: {migration_err}")
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
